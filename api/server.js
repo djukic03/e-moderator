@@ -10,7 +10,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({ fruits: ["apple", "banana", "cherry"] });
+  res.send({ fruits: ["apple", "banana", "cherry"] });
 });
 
 app.listen(8080, () => {
