@@ -1,11 +1,14 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
+const app = express();
 const corsOptions = {
-  origin: ["https://e-moderator-front.vercel.app/"],
+  origin: ["https://e-moderator-front.vercel.app"],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
+
+app.use(express.json());
 
 app.get("/api", (req, res) => {
   res.json({ fruits: ["apple", "banana", "cherry"] });
