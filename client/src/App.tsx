@@ -1,18 +1,15 @@
 import { useState, useEffect} from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import fonLogo from './assets/blokada_fon.png'
 import './App.css'
 import axios from 'axios'
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [fruits, setFruits] = useState([])
+  const [message, setMessage] = useState('')
 
   const fetchApi = async () => {
-    const response = await axios.get('https://e-moderator.vercel.app/api')
-    //const response = await axios.get('http://localhost:8080/api')
-    setFruits(response.data.fruits)
-    console.log(response.data.fruits)
+    //const response = await axios.get('https://e-moderator.vercel.app/api')
+    const response = await axios.get('http://localhost:8080/api')
+    setMessage(response.data.message)
   }
 
   useEffect(() => {
@@ -22,33 +19,22 @@ function App() {
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
+        <a href="https://www.instagram.com/blokada.fon" target="_blank">
+          <img src={fonLogo} className="logo" alt="Fon logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1>Dobrodošli u e-moderatora studenata FONa u blokadi</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <button>
+          Počni e-plenum
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-        {
-          fruits.map((fruit, index) => {
-            return <div key={index}>
-              <p>{fruit}</p>
-              <br />
-            </div>
-          })
-        }
       </div>
       <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+        Pritisnite na FON blokada logo da vidite zbog čega držimo ove plenume
       </p>
+      {
+        message && <p>{message}</p>
+      }
     </>
   )
 }
