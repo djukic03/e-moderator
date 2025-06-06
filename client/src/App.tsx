@@ -9,7 +9,7 @@ function App() {
   const [fruits, setFruits] = useState([])
 
   const fetchApi = async () => {
-    const response = await axios.get('http://localhost:8080/api')
+    const response = await axios.get('https://e-moderator.vercel.app/api')
     setFruits(response.data.fruits)
     console.log(response.data.fruits)
   }

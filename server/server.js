@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["https://e-moderator-front.vercel.app/"],
 };
 
 app.use(cors(corsOptions));
