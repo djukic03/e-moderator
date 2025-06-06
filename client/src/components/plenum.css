@@ -1,0 +1,55 @@
+.container {
+    width: 100%;
+    height: 100%;
+}
+
+.users {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    padding-left: 15px;
+}
+
+.usersToSpeak {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    height: 90vh;
+    width: 50vw;
+    margin-right: 15px;
+    float: left;
+    border: 2px solid #003b64;
+    border-radius: 15px;
+    background-color: #4d80a4;
+}
+
+.usersInPlenum {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    height: 90vh;
+    width: 30vw;
+    border: 2px solid #003b64;
+    border-radius: 15px;
+    background-color: #4d80a4;
+    float: right;
+}
+
+.title {
+    width: 100%;
+    padding-left: 15px;
+    text-align: left;
+    background-color: #003b64;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.qrcode {
+    height: 30vh;
+    width: 100%;
+    background-color: lightblue;
+}

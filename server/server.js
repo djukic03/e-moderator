@@ -9,10 +9,11 @@ app.use(
   })
 );
 
+var usersInPlenum = ["test1", "test2", "test3", "test4", "test5"];
+var usersToSpeak = [];
+
 app.get("/api", (req, res) => {
-  res.send({
-    message: "Ispunite zahteve!!!",
-  });
+  res.send({ usersInPlenum });
 });
 
 app.listen(8080, () => {
