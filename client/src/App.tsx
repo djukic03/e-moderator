@@ -1,4 +1,3 @@
-import React from 'react'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom' 
 import Index from './components/index.tsx'
 import Plenum from './components/plenum.tsx'
