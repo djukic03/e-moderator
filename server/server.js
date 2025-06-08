@@ -43,6 +43,8 @@ io.on("connection", (socket) => {
       return;
     }
 
+    socket.join(meetingId);
+
     const alreadyJoined = plenum.users.some(
       (user) => user.clientId === clientId
     );
@@ -54,7 +56,8 @@ io.on("connection", (socket) => {
       `Корисник ${name} | ${clientId} се прикључио састанку ${meetingId}`
     );
 
-    socket.emit("joined_meeting", plenum);
+    //socket.emit("joined_meeting", plenum);
+    io.to(meetingId).emit("joined_meeting", plenum);
   });
 
   socket.on("get_plenum", (meetingId, callback) => {

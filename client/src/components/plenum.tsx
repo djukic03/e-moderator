@@ -1,6 +1,7 @@
 import './plenum.css'
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { QRCodeCanvas } from 'qrcode.react';
 import socket from '../socket/socket';
 
 interface Plenum {
@@ -15,6 +16,8 @@ const plenum = () => {
   const [inputName, setInputName] = useState("");
   const [plenum, setPlenum] = useState<Plenum | null>(null);
   const [isModerator, setIsModerator] = useState(false);
+  //const url = `http://localhost:5173/plenum/${meetingId}`
+  const url = `https://e-moderator-front.vercel.app/plenum/${meetingId}`
   
   useEffect(() => {
     if (!meetingId) return;
@@ -45,7 +48,7 @@ const plenum = () => {
       socket.emit("join_meeting", { meetingId, clientId, name });
     }
 
-    socket.on("joined_meeting", ({ plenum }) => {
+    socket.on("joined_meeting", ( plenum ) => {
       setPlenum(plenum);
     });
 
@@ -61,7 +64,7 @@ const plenum = () => {
     }
   }
 
-  if(!name || !isModerator){
+  if(!name && !isModerator){
     return (
       <div className='container'>
         <input type="text" placeholder="Unesite ime" value={inputName} onChange={(e) => setInputName(e.target.value)} />
@@ -71,19 +74,30 @@ const plenum = () => {
   }
 
   return (
-    <div className='container'>
-      <div className='usersToSpeak'>
-            <div className='title'>
-                <h2>Tražili reč:</h2>
-            </div>
-            <div className='users'>
-                <p>Jovan</p>
-                <p>Pera</p>
-                <p>Mika</p>
-            </div>
+    <>
+      <div className='left'>
+        <div className='title'>
+          <h2>Tražili reč:</h2>
+        </div>
+        <div className='users'>
+            <p>Jovan</p>
+            <p>Pera</p>
+            <p>Mika</p>
+            <p>Jovan</p>
+            <p>Pera</p>
+            <p>Mika</p>
+            <p>Jovan</p>
+            <p>Pera</p>
+            <p>Mika</p>
+            <p>Jovan</p>
+            <p>Pera</p>
+            <p>Mika</p>
+        </div>
       </div>
-      <div className='usersInPlenum'>
-        <h3 className='title'>U e-plenumu</h3>
+      <div className='right'>
+        <div className='title'>
+          <h3>U e-plenumu</h3>
+        </div>
         <div className='users'>
             {
                 plenum?.users.map((user) => (
@@ -91,19 +105,34 @@ const plenum = () => {
                 ))
             }
         </div>
-        <div className='qrcode'>
-
-        </div>
+        {
+          isModerator && (
+            <div className='qrcode'>
+              <QRCodeCanvas value={url} size={200} />
+            </div>
+          )
+        }
+        
       </div>
       <div>
-        <button >Придружи се састанку</button>
-        <>
-          <button >Јави се за реч ✋</button>
-          <button >Гласам ЗА ✅</button>
-          <button >Гласам ПРОТИВ ❌</button>
-        </>
+        {
+          isModerator ? (
+            <div className='buttons'>
+              <button>Pokreni glasanje</button>
+              <button>Pauza</button>
+              <button>Zavrsi plenum</button>
+            </div>
+          ) : (
+            <div className='buttons'>
+              <button>Traži reč</button>
+              <button>Amandman</button>
+              <button>Tehnicka</button>
+            </div>
+          )
+        }
+        
     </div>
-    </div>
+    </>
   )
 }
 

@@ -1,55 +1,62 @@
-.container {
-    width: 100%;
-    height: 100%;
-}
-
 .users {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
     width: 100%;
-    padding-left: 15px;
+    border: 2px solid #003b64;
+    border-radius: 15px;
+    box-shadow: 0 0 2em #4d80a4 inset;
+    overflow: scroll;
+
+    p {
+        margin-left: 10px;
+    }
 }
 
-.usersToSpeak {
+.left {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    height: 90vh;
-    width: 50vw;
-    margin-right: 15px;
+    height: 80vh;
+    width: 60vw;
     float: left;
-    border: 2px solid #003b64;
-    border-radius: 15px;
-    background-color: #4d80a4;
+    margin-right: 20px;
 }
 
-.usersInPlenum {
+.right {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    height: 90vh;
-    width: 30vw;
-    border: 2px solid #003b64;
-    border-radius: 15px;
-    background-color: #4d80a4;
+    align-items: center;
+    justify-content: space-between;
+    height: 80vh;
+    width: 20vw;
     float: right;
 }
 
 .title {
     width: 100%;
-    padding-left: 15px;
     text-align: left;
     background-color: #003b64;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
+    box-shadow: 0 0 2em #4d80a4 inset;
+    border-radius: 15px;
+
+    h2,
+    h3 {
+        margin-left: 10px;
+    }
 }
 
 .qrcode {
-    height: 30vh;
+    box-shadow: 0 0 2em #4d80a4;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
     width: 100%;
-    background-color: lightblue;
+    justify-content: space-evenly;
+    padding-top: 20px;
 }
