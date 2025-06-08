@@ -1,21 +1,20 @@
-import React, { useState, useEffect} from 'react'
+import React from 'react'
 import fonLogo from '../assets/blokada_fon.png'
-import axios from 'axios'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import Socket from '../socket/socket.ts'
 
 const index: React.FC = () => {
-  const [message, setMessage] = useState([])
+  const navigate = useNavigate();
 
-  const fetchApi = async () => {
-    //const response = await axios.get('https://e-moderator.vercel.app/api')
-    const response = await axios.get('http://localhost:8080/api')
-    setMessage(response.data.usersInPlenum)
-    console.log(response.data.usersInPlenum)
-  }
-
-  useEffect(() => {
-    fetchApi()
-  }, [])
+  const startMeeting = () => {
+    const moderator = localStorage.getItem("clientId");
+    Socket.emit("create_meeting", { moderator });
+    
+    Socket.once("meeting_created", (meetingId) => {
+      localStorage.setItem("name", "Moderator");
+      navigate(`/plenum/${meetingId}`);
+    });
+  };
 
   return (
     <>
@@ -26,18 +25,11 @@ const index: React.FC = () => {
       </div>
       <h1>Dobrodošli u e-moderatora studenata FONa u blokadi</h1>
       <div className="card">
-        <Link to="/plenum">
-            <button>Počni e-plenum</button>
-        </Link>
+          <button onClick={startMeeting}>Počni e-plenum</button>
       </div>
       <p className="read-the-docs">
         Pritisnite na FON blokada logo da vidite zbog čega držimo ove plenume
       </p>
-      {
-        message && message.map((item, index) => {
-          return <p key={index}>{item}</p>
-        })
-      }
     </>
   )
 }

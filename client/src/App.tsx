@@ -8,7 +8,7 @@ function App() {
     createRoutesFromElements([
       <>
         <Route path="/" element={<Index/>} />
-        <Route path="/plenum" element={<Plenum/>} />
+        <Route path="/plenum/:meetingId" element={<Plenum/>} />
       </>
     ])
   )
