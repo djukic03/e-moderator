@@ -9,7 +9,6 @@ const getClientId = (): string => {
 };
 
 const socket = io("https://e-moderator-back.onrender.com", {
-//const socket = io("https://e-moderator.vercel.app/", {
 //const socket = io("http://localhost:8080", {
     auth: {
       clientId: getClientId(),

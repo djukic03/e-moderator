@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { QRCodeCanvas } from 'qrcode.react';
 import socket from '../socket/socket';
+import UserCard from './userCard.tsx';
 
 interface Plenum {
   meetingId: string;
@@ -52,8 +53,13 @@ const plenum = () => {
       setPlenum(plenum);
     });
 
+    socket.on("left_meeting", ( plenum ) => {
+      setPlenum(plenum);
+    });
+
     return () => {
       socket.off("joined_meeting");
+      socket.off("left_meeting");
     };
   }, [name, meetingId]);
 
@@ -80,18 +86,11 @@ const plenum = () => {
           <h2>Tražili reč:</h2>
         </div>
         <div className='users'>
-            <p>Jovan</p>
-            <p>Pera</p>
-            <p>Mika</p>
-            <p>Jovan</p>
-            <p>Pera</p>
-            <p>Mika</p>
-            <p>Jovan</p>
-            <p>Pera</p>
-            <p>Mika</p>
-            <p>Jovan</p>
-            <p>Pera</p>
-            <p>Mika</p>
+          {
+            plenum?.users.map((user, index) => (
+              <UserCard key={index} />
+            ))
+          }
         </div>
       </div>
       <div className='right'>
@@ -100,8 +99,8 @@ const plenum = () => {
         </div>
         <div className='users'>
             {
-                plenum?.users.map((user) => (
-                    <p>{user.name}</p>
+                plenum?.users.map((user, index) => (
+                    <p key={index}>{user.name}</p>
                 ))
             }
         </div>

@@ -1,0 +1,23 @@
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    height: 40px;
+    box-shadow: 0 0 1em #4d80a4 inset;
+    border-radius: 15px;
+    margin: 10px auto 0 auto;
+}
+
+.speech {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+
+    p {
+        margin-right: 15px;
+    }
+}

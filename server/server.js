@@ -43,20 +43,24 @@ io.on("connection", (socket) => {
       return;
     }
 
-    socket.join(meetingId);
-
-    const alreadyJoined = plenum.users.some(
-      (user) => user.clientId === clientId
-    );
-    if (!alreadyJoined) {
-      plenum.users.push({ clientId, name: name || "Unknown" });
+    const user = plenum.users.find((u) => u.clientId === clientId);
+    if (user) {
+      user.socketId = socket.id;
+      console.log(`🔄 Клијент ${clientId} поново повезан у ${meetingId}`);
+    } else {
+      plenum.users.push({
+        clientId,
+        socketId: socket.id,
+        name: name || "Unknown",
+      });
     }
+
+    socket.join(meetingId);
 
     console.log(
       `Корисник ${name} | ${clientId} се прикључио састанку ${meetingId}`
     );
 
-    //socket.emit("joined_meeting", plenum);
     io.to(meetingId).emit("joined_meeting", plenum);
   });
 
@@ -71,6 +75,21 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("Клијент се искључио:", socket.id);
+
+    setTimeout(() => {
+      for (const meetingId in plenumi) {
+        const plenum = plenumi[meetingId];
+        const index = plenum.users.findIndex((u) => u.socketId === socket.id);
+        if (index !== -1) {
+          const user = plenum.users[index];
+          if (user.socketId !== socket.id) return;
+
+          plenum.users.splice(index, 1);
+          io.to(meetingId).emit("left_meeting", plenum);
+          console.log(`👋 ${user.name} напустио Plenum ${meetingId}`);
+        }
+      }
+    }, 3000);
   });
 });
 
