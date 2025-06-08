@@ -1,6 +1,6 @@
 import React from 'react'
 
-const userCard = () => {
+const userCard : React.FC = () => {
   return (
     <div>userCard</div>
   )
