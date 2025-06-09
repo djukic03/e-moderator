@@ -24,6 +24,7 @@ const io = new Server(server, {
 });
 
 const plenumi = {};
+const speakers = {};
 
 io.on("connection", (socket) => {
   const clientId = socket.handshake.auth.clientId;
@@ -64,13 +65,42 @@ io.on("connection", (socket) => {
     io.to(meetingId).emit("joined_meeting", plenum);
   });
 
-  socket.on("get_plenum", (meetingId, callback) => {
+  socket.on("request_to_speak", ({ meetingId, clientId, typeOfSpeech }) => {
     const plenum = plenumi[meetingId];
     if (!plenum) {
-      callback({ error: "Plenum ne postoji." });
+      socket.emit("error", "meeting_not_found");
       return;
     }
-    callback({ plenum });
+
+    const user = plenum.users.find((u) => u.clientId === clientId);
+    if (user) {
+      if (!speakers[meetingId]) {
+        speakers[meetingId] = { users: [] };
+      }
+      speakers[meetingId].users.push({
+        clientId,
+        socketId: user.socketId,
+        name: user.name,
+        typeOfSpeech: typeOfSpeech,
+      });
+    }
+    const meetingSpeakers = speakers[meetingId];
+
+    console.log(
+      `Korisnik ${user.name} | ${clientId} se javio za ${typeOfSpeech}`
+    );
+
+    io.to(meetingId).emit("speech_requested", meetingSpeakers);
+  });
+
+  socket.on("get_plenum", (meetingId, callback) => {
+    const plenum = plenumi[meetingId];
+    const meetingSpeakers = speakers[meetingId];
+    if (!plenum) {
+      callback({ error: "Plenum ne postoj." });
+      return;
+    }
+    callback({ plenum, meetingSpeakers });
   });
 
   socket.on("disconnect", () => {
@@ -92,10 +122,6 @@ io.on("connection", (socket) => {
     }, 3000);
   });
 });
-
-/*app.get("/api", (req, res) => {
-  res.send({ usersInPlenum });
-});*/
 
 server.listen(8080, () => {
   console.log(`Example app listening on port 8080`);

@@ -1,12 +1,17 @@
 import React from 'react'
 import './userCard.css'
 
-const userCard : React.FC = () => {
+interface UserCardProps {
+  name: string;
+  typeOfSpeech: string;
+}
+
+const userCard : React.FC<UserCardProps> = ({name, typeOfSpeech}) => {
   return (
-    <div className='card'>
-      <h3>Korisnik</h3>
+    <div className='userCard'>
+      <h3>{name}</h3>
       <div className='speech'>
-        <p>Poruka</p>
+        <p>{typeOfSpeech}</p>
         <button>X</button>
       </div>
     </div>

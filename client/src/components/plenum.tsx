@@ -11,11 +11,17 @@ interface Plenum {
   users: { clientId: string; name: string }[];
 }
 
+interface Speakers {
+  meetingId: string;
+  users: {clientId: string; name: string; typeOfSpeech: string; }[];
+}
+
 const plenum = () => {
   const { meetingId } = useParams();
   const [name, setName] = useState<string | null>(localStorage.getItem("name"));
   const [inputName, setInputName] = useState("");
   const [plenum, setPlenum] = useState<Plenum | null>(null);
+  const [meetingSpeakers, setMeetingSpeakers] = useState<Speakers | null>(null);
   const [isModerator, setIsModerator] = useState(false);
   //const url = `http://localhost:5173/plenum/${meetingId}`
   const url = `https://e-moderator-front.vercel.app/plenum/${meetingId}`
@@ -26,7 +32,7 @@ const plenum = () => {
     const clientId = localStorage.getItem("clientId");
     if (!clientId) return;
 
-    socket.emit("get_plenum", meetingId, (response: { plenum?: Plenum; error?: string }) => {
+    socket.emit("get_plenum", meetingId, (response: { plenum?: Plenum; meetingSpeakers?: Speakers; error?: string }) => {
       if (response.error) {
         console.error(response.error);
         return;
@@ -34,6 +40,9 @@ const plenum = () => {
 
       const plenumData = response.plenum!;
       setPlenum(plenumData);
+
+      const meetingSpeakers = response.meetingSpeakers!;
+      setMeetingSpeakers(meetingSpeakers);
 
       if (clientId === plenumData.moderatorId) {
         setIsModerator(true);
@@ -57,17 +66,35 @@ const plenum = () => {
       setPlenum(plenum);
     });
 
+    
+
     return () => {
       socket.off("joined_meeting");
       socket.off("left_meeting");
     };
   }, [name, meetingId]);
 
+  useEffect(() => {
+    socket.on("speech_requested", (meetingSpeakers) => {
+      setMeetingSpeakers(meetingSpeakers);
+      console.log(meetingSpeakers.users);
+    });
+
+    return () => {
+      socket.off("speech_requested");
+    };
+  }, []);
+
   const handleJoin = () => {
     if (inputName.trim()){
       localStorage.setItem("name", inputName);
       setName(inputName);
     }
+  }
+
+  const handleRequest = (typeOfSpeech: string) => {
+    const clientId = localStorage.getItem("clientId");
+    socket.emit("request_to_speak", { meetingId, clientId, typeOfSpeech });
   }
 
   if(!name && !isModerator){
@@ -87,8 +114,8 @@ const plenum = () => {
         </div>
         <div className='users'>
           {
-            plenum?.users.map((user, index) => (
-              <UserCard key={index} />
+            meetingSpeakers?.users.map((speaker, index) => ( 
+              <UserCard key={index} name={speaker.name} typeOfSpeech={speaker.typeOfSpeech} />
             ))
           }
         </div>
@@ -123,9 +150,9 @@ const plenum = () => {
             </div>
           ) : (
             <div className='buttons'>
-              <button>Traži reč</button>
-              <button>Amandman</button>
-              <button>Tehnicka</button>
+              <button onClick={() => handleRequest("Reč")}>Traži reč</button>
+              <button onClick={() => handleRequest("Amandman")}>Amandman</button>
+              <button onClick={() => handleRequest("Tehnička")}>Tehnička</button>
             </div>
           )
         }

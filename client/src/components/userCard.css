@@ -1,4 +1,4 @@
-.card {
+.userCard {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -8,6 +8,7 @@
     box-shadow: 0 0 1em #4d80a4 inset;
     border-radius: 15px;
     margin: 10px auto 0 auto;
+    padding: 1em;
 }
 
 .speech {
@@ -16,6 +17,7 @@
     align-items: center;
     justify-content: space-between;
     height: 100%;
+    margin-right: 20px;
 
     p {
         margin-right: 15px;
