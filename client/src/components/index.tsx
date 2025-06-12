@@ -7,11 +7,11 @@ const index: React.FC = () => {
   const navigate = useNavigate();
 
   const startMeeting = () => {
-    const moderator = localStorage.getItem("clientId");
+    const moderator = sessionStorage.getItem("clientId");
     Socket.emit("create_meeting", { moderator });
     
     Socket.once("meeting_created", (meetingId) => {
-      localStorage.setItem("name", "Moderator");
+      sessionStorage.setItem("name", "Moderator");
       navigate(`/plenum/${meetingId}`);
     });
   };

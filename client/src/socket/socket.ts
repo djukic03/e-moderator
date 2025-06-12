@@ -1,10 +1,10 @@
 import { io } from "socket.io-client";
 
 const getClientId = (): string => {
-  const saved = localStorage.getItem("clientId");
+  const saved = sessionStorage.getItem("clientId");
   if (saved) return saved;
   const newId = crypto.randomUUID();
-  localStorage.setItem("clientId", newId);
+  sessionStorage.setItem("clientId", newId);
   return newId;
 };
 

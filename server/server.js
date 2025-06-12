@@ -93,6 +93,29 @@ io.on("connection", (socket) => {
     io.to(meetingId).emit("speech_requested", meetingSpeakers);
   });
 
+  socket.on("cancel_request", ({ meetingId, clientId }) => {
+    const plenum = plenumi[meetingId];
+    if (!plenum) {
+      socket.emit("error", "meeting_not_found");
+      return;
+    }
+
+    const user = plenum.users.find((u) => u.clientId === clientId);
+    if (user) {
+      const index = speakers[meetingId].users.findIndex(
+        (u) => u.clientId === clientId
+      );
+      if (index !== -1) {
+        speakers[meetingId].users.splice(index, 1);
+      }
+    }
+    const meetingSpeakers = speakers[meetingId];
+
+    console.log(`Korisnik ${user.name} | ${clientId} je odustao od price`);
+
+    io.to(meetingId).emit("request_cancelled", meetingSpeakers);
+  });
+
   socket.on("get_plenum", (meetingId, callback) => {
     const plenum = plenumi[meetingId];
     const meetingSpeakers = speakers[meetingId];
@@ -115,11 +138,21 @@ io.on("connection", (socket) => {
           if (user.socketId !== socket.id) return;
 
           plenum.users.splice(index, 1);
-          io.to(meetingId).emit("left_meeting", plenum);
+
+          const meetingSpeakers = speakers[meetingId];
+          if (meetingSpeakers) {
+            const index = meetingSpeakers.users.findIndex(
+              (u) => u.socketId === socket.id
+            );
+            if (index !== -1) {
+              meetingSpeakers.users.splice(index, 1);
+            }
+          }
+          io.to(meetingId).emit("left_meeting", plenum, meetingSpeakers);
           console.log(`👋 ${user.name} напустио Plenum ${meetingId}`);
         }
       }
-    }, 3000);
+    }, 2000);
   });
 });
 

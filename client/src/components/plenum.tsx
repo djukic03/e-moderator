@@ -18,7 +18,7 @@ interface Speakers {
 
 const plenum = () => {
   const { meetingId } = useParams();
-  const [name, setName] = useState<string | null>(localStorage.getItem("name"));
+  const [name, setName] = useState<string | null>(sessionStorage.getItem("name"));
   const [inputName, setInputName] = useState("");
   const [plenum, setPlenum] = useState<Plenum | null>(null);
   const [meetingSpeakers, setMeetingSpeakers] = useState<Speakers | null>(null);
@@ -29,7 +29,7 @@ const plenum = () => {
   useEffect(() => {
     if (!meetingId) return;
 
-    const clientId = localStorage.getItem("clientId");
+    const clientId = sessionStorage.getItem("clientId");
     if (!clientId) return;
 
     socket.emit("get_plenum", meetingId, (response: { plenum?: Plenum; meetingSpeakers?: Speakers; error?: string }) => {
@@ -47,14 +47,14 @@ const plenum = () => {
       if (clientId === plenumData.moderatorId) {
         setIsModerator(true);
         setName("Moderator");
-        localStorage.setItem("name", "Moderator");
+        sessionStorage.setItem("name", "Moderator");
       }
     });
   }, [meetingId]);
 
   useEffect(() => {
     if (name && meetingId) {
-      const clientId = localStorage.getItem("clientId");
+      const clientId = sessionStorage.getItem("clientId");
       socket.emit("join_meeting", { meetingId, clientId, name });
     }
 
@@ -62,11 +62,10 @@ const plenum = () => {
       setPlenum(plenum);
     });
 
-    socket.on("left_meeting", ( plenum ) => {
+    socket.on("left_meeting", ( plenum, speakers ) => {
       setPlenum(plenum);
+      setMeetingSpeakers(speakers);
     });
-
-    
 
     return () => {
       socket.off("joined_meeting");
@@ -80,21 +79,31 @@ const plenum = () => {
       console.log(meetingSpeakers.users);
     });
 
+    socket.on("request_cancelled", (meetingSpeakers) => {
+      setMeetingSpeakers(meetingSpeakers);
+      console.log(meetingSpeakers.users);
+    });
+
     return () => {
       socket.off("speech_requested");
+      socket.off("request_cancelled");
     };
   }, []);
 
   const handleJoin = () => {
     if (inputName.trim()){
-      localStorage.setItem("name", inputName);
+      sessionStorage.setItem("name", inputName);
       setName(inputName);
     }
   }
 
   const handleRequest = (typeOfSpeech: string) => {
-    const clientId = localStorage.getItem("clientId");
+    const clientId = sessionStorage.getItem("clientId");
     socket.emit("request_to_speak", { meetingId, clientId, typeOfSpeech });
+  }
+
+  const handleCancel = (clientId: string) => {
+    socket.emit("cancel_request", { meetingId, clientId });
   }
 
   if(!name && !isModerator){
@@ -115,7 +124,7 @@ const plenum = () => {
         <div className='users'>
           {
             meetingSpeakers?.users.map((speaker, index) => ( 
-              <UserCard key={index} name={speaker.name} typeOfSpeech={speaker.typeOfSpeech} />
+              <UserCard key={index} speaker={speaker} callback={handleCancel} />
             ))
           }
         </div>
@@ -150,9 +159,9 @@ const plenum = () => {
             </div>
           ) : (
             <div className='buttons'>
-              <button onClick={() => handleRequest("Reč")}>Traži reč</button>
-              <button onClick={() => handleRequest("Amandman")}>Amandman</button>
-              <button onClick={() => handleRequest("Tehnička")}>Tehnička</button>
+              <button disabled={meetingSpeakers?.users.some((speaker) => speaker.clientId === sessionStorage.getItem("clientId"))} onClick={() => handleRequest("Reč")}>Traži reč</button>
+              <button disabled={meetingSpeakers?.users.some((speaker) => speaker.clientId === sessionStorage.getItem("clientId"))} onClick={() => handleRequest("Amandman")}>Amandman</button>
+              <button disabled={meetingSpeakers?.users.some((speaker) => speaker.clientId === sessionStorage.getItem("clientId"))} onClick={() => handleRequest("Tehnička")}>Tehnička</button>
             </div>
           )
         }
