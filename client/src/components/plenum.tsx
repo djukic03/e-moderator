@@ -33,8 +33,8 @@ const plenum = () => {
   });
   const [isModerator, setIsModerator] = useState(false);
   const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null);
-  const url = `http://localhost:5173/plenum/${meetingId}`
-  //const url = `https://e-moderator-front.vercel.app/plenum/${meetingId}`
+  //const url = `http://localhost:5173/plenum/${meetingId}`
+  const url = `https://e-moderator-front.vercel.app/plenum/${meetingId}`
   
   useEffect(() => {
     if (!meetingId) return;

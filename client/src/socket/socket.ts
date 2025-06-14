@@ -8,8 +8,8 @@ const getClientId = (): string => {
   return newId;
 };
 
-//const socket = io("https://e-moderator-back.onrender.com", {
-const socket = io("http://localhost:8080", {
+const socket = io("https://e-moderator-back.onrender.com", {
+//const socket = io("http://localhost:8080", {
     auth: {
       clientId: getClientId(),
     },
