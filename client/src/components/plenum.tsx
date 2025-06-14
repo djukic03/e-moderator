@@ -22,9 +22,19 @@ const plenum = () => {
   const [inputName, setInputName] = useState("");
   const [plenum, setPlenum] = useState<Plenum | null>(null);
   const [meetingSpeakers, setMeetingSpeakers] = useState<Speakers | null>(null);
+  const sortedSpeakers = [...(meetingSpeakers?.users || [])].sort((a, b) => {
+    if (a.typeOfSpeech === "Tehnička" && b.typeOfSpeech !== "Tehnička") {
+      return -1;
+    }
+    if (a.typeOfSpeech !== "Tehnička" && b.typeOfSpeech === "Tehnička") {
+      return 1;
+    }
+    return 0;
+  });
   const [isModerator, setIsModerator] = useState(false);
-  //const url = `http://localhost:5173/plenum/${meetingId}`
-  const url = `https://e-moderator-front.vercel.app/plenum/${meetingId}`
+  const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null);
+  const url = `http://localhost:5173/plenum/${meetingId}`
+  //const url = `https://e-moderator-front.vercel.app/plenum/${meetingId}`
   
   useEffect(() => {
     if (!meetingId) return;
@@ -84,16 +94,35 @@ const plenum = () => {
       console.log(meetingSpeakers.users);
     });
 
+    socket.on("timer_started", (clientId) => {
+      console.log(`Timer started for ${clientId}`);
+      setActiveSpeaker(clientId);
+    });
+
+    socket.on("timer_ended", (clientId) => {
+      console.log(`Timer ended for ${clientId}`);
+      setActiveSpeaker(null);
+    });
+
     return () => {
       socket.off("speech_requested");
       socket.off("request_cancelled");
+      socket.off("timer_started");
+      socket.off("timer_ended");
     };
   }, []);
 
   const handleJoin = () => {
     if (inputName.trim()){
+      if (inputName.trim() === "Moderator") {
+        alert("Ime Moderator je zauzeto.");
+        return;
+      }
       sessionStorage.setItem("name", inputName);
       setName(inputName);
+    }
+    else {
+      alert("Unesite ime.");
     }
   }
 
@@ -103,6 +132,15 @@ const plenum = () => {
   }
 
   const handleCancel = (clientId: string) => {
+    socket.emit("cancel_request", { meetingId, clientId });
+  }
+
+  const handleStartTimer = (clientId: string) => {
+    socket.emit("start_timer", clientId );
+  }
+
+  const handleEndTimer = (clientId: string) => {
+    socket.emit("end_timer", clientId );
     socket.emit("cancel_request", { meetingId, clientId });
   }
 
@@ -116,22 +154,22 @@ const plenum = () => {
   }
 
   return (
-    <>
+    <div className='fullHeight'>
       <div className='left'>
         <div className='title'>
           <h2>Tražili reč:</h2>
         </div>
         <div className='users'>
           {
-            meetingSpeakers?.users.map((speaker, index) => ( 
-              <UserCard key={index} speaker={speaker} callback={handleCancel} />
+            sortedSpeakers?.map((speaker, index) => ( 
+              <UserCard key={index} speaker={speaker} callback={handleCancel} onStartTimer={handleStartTimer} onEndTimer={handleEndTimer} activeSpeaker={activeSpeaker} isFirst={index === 0}/>
             ))
           }
         </div>
       </div>
       <div className='right'>
         <div className='title'>
-          <h3>U e-plenumu</h3>
+          <h3>U e-plenumu: {plenum?.users.length}</h3>
         </div>
         <div className='users'>
             {
@@ -149,7 +187,6 @@ const plenum = () => {
         }
         
       </div>
-      <div>
         {
           isModerator ? (
             <div className='buttons'>
@@ -165,9 +202,7 @@ const plenum = () => {
             </div>
           )
         }
-        
     </div>
-    </>
   )
 }
 

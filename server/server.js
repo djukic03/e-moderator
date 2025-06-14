@@ -8,8 +8,8 @@ const { type } = require("os");
 const app = express();
 app.use(
   cors({
-    //origin: "http://localhost:5173",
-    origin: "https://e-moderator-front.vercel.app",
+    origin: "http://localhost:5173",
+    //origin: "https://e-moderator-front.vercel.app",
     methods: ["GET", "POST"],
   })
 );
@@ -17,8 +17,8 @@ app.use(
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    //origin: "http://localhost:5173",
-    origin: "https://e-moderator-front.vercel.app",
+    origin: "http://localhost:5173",
+    //origin: "https://e-moderator-front.vercel.app",
     methods: ["GET", "POST"],
   },
 });
@@ -124,6 +124,16 @@ io.on("connection", (socket) => {
       return;
     }
     callback({ plenum, meetingSpeakers });
+  });
+
+  socket.on("start_timer", (clientId) => {
+    console.log(`Timer je pokrenut za ${clientId}`);
+    io.emit("timer_started", clientId);
+  });
+
+  socket.on("end_timer", (clientId) => {
+    console.log(`Timer je zavrsen za ${clientId}`);
+    io.emit("timer_ended", clientId);
   });
 
   socket.on("disconnect", () => {
