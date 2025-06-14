@@ -1,6 +1,7 @@
 import './plenum.css'
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import socket from '../socket/socket';
 import UserCard from './userCard.tsx';
@@ -17,6 +18,7 @@ interface Speakers {
 }
 
 const plenum = () => {
+  const navigate = useNavigate();
   const { meetingId } = useParams();
   const [name, setName] = useState<string | null>(sessionStorage.getItem("name"));
   const [inputName, setInputName] = useState("");
@@ -33,6 +35,7 @@ const plenum = () => {
   });
   const [isModerator, setIsModerator] = useState(false);
   const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null);
+  const [plenumEnded, setPlenumEnded] = useState(false);
   //const url = `http://localhost:5173/plenum/${meetingId}`
   const url = `https://e-moderator-front.vercel.app/plenum/${meetingId}`
   
@@ -104,11 +107,16 @@ const plenum = () => {
       setActiveSpeaker(null);
     });
 
+    socket.on("meeting_ended", () => {
+      setPlenumEnded(true);
+    });
+
     return () => {
       socket.off("speech_requested");
       socket.off("request_cancelled");
       socket.off("timer_started");
       socket.off("timer_ended");
+      socket.off("plenum_ended");
     };
   }, []);
 
@@ -142,6 +150,19 @@ const plenum = () => {
   const handleEndTimer = (clientId: string) => {
     socket.emit("end_timer", clientId );
     socket.emit("cancel_request", { meetingId, clientId });
+  }
+
+  const handleEndPlenum = () => {
+    socket.emit("end_meeting", meetingId);
+  }
+
+  if(plenumEnded){
+    return (
+      <div className='container'>
+        <h1>Plenum je završen</h1>
+        <button onClick={() => {navigate("/")}}>Vrati se na početak</button>
+      </div>
+    )
   }
 
   if(!name && !isModerator){
@@ -191,8 +212,7 @@ const plenum = () => {
           isModerator ? (
             <div className='buttons'>
               <button>Pokreni glasanje</button>
-              <button>Pauza</button>
-              <button>Zavrsi plenum</button>
+              <button onClick={handleEndPlenum}>Zavrsi plenum</button>
             </div>
           ) : (
             <div className='buttons'>

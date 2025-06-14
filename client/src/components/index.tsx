@@ -27,9 +27,11 @@ const index: React.FC = () => {
       <div className="card">
           <button onClick={startMeeting}>Počni e-plenum</button>
       </div>
+      <h2>ZAHTEVI NISU ISPUNJENI!!!</h2>
       <p className="read-the-docs">
-        Pritisnite na FON blokada logo da vidite zbog čega držimo ove plenume
+        Za više informacija, kliknite na blokada FON logo
       </p>
+      
     </>
   )
 }

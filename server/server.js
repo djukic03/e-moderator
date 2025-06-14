@@ -37,6 +37,15 @@ io.on("connection", (socket) => {
     console.log(`Plenum ${meetingId}, moderator: ${moderator}`);
   });
 
+  socket.on("end_meeting", (meetingId) => {
+    delete plenumi[meetingId];
+    delete speakers[meetingId];
+
+    console.log(`Plenum ${meetingId} je zavrsen`);
+
+    io.to(meetingId).emit("meeting_ended");
+  });
+
   socket.on("join_meeting", ({ meetingId, clientId, name }) => {
     const plenum = plenumi[meetingId];
     if (!plenum) {
@@ -147,6 +156,13 @@ io.on("connection", (socket) => {
           const user = plenum.users[index];
           if (user.socketId !== socket.id) return;
 
+          if (user.clientId === plenum.moderatorId) {
+            io.to(meetingId).emit("meeting_ended");
+            delete plenumi[meetingId];
+            delete speakers[meetingId];
+            return;
+          }
+
           plenum.users.splice(index, 1);
 
           const meetingSpeakers = speakers[meetingId];
@@ -161,6 +177,7 @@ io.on("connection", (socket) => {
           io.to(meetingId).emit("left_meeting", plenum, meetingSpeakers);
           console.log(`👋 ${user.name} напустио Plenum ${meetingId}`);
         }
+        break;
       }
     }, 2000);
   });
